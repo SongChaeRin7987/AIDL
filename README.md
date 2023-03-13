@@ -3,7 +3,7 @@
 # Repository for AI Deep Learing class
 # author : [송채린 / Song Chae Rin]
 
-# 나의 repository에 오신 것을 환영해, 연진아
+## 나의 repository에 오신 것을 환영해, 연진아
 
 
 ### Folders
