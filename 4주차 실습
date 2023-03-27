@@ -1,0 +1,2410 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/SongChaeRin7987/AIDL/blob/main/4%EC%A3%BC%EC%B0%A8%20%EC%8B%A4%EC%8A%B5\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0Ukdf-_wqrRT"
+      },
+      "source": [
+        "This is a companion notebook for the book [Deep Learning with Python, Second Edition](https://www.manning.com/books/deep-learning-with-python-second-edition?a_aid=keras&a_bid=76564dff). For readability, it only contains runnable code blocks and section titles, and omits everything else in the book: text paragraphs, figures, and pseudocode.\n",
+        "\n",
+        "**If you want to be able to follow what's going on, I recommend reading the notebook side by side with your copy of the book.**\n",
+        "\n",
+        "This notebook was generated for TensorFlow 2.6."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "HhxFOgPNqrRV"
+      },
+      "source": [
+        "# The mathematical building blocks of neural networks"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5l0Vij1NqrRW"
+      },
+      "source": [
+        "## A first look at a neural network"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "NWu1aolWqrRW"
+      },
+      "source": [
+        "**Loading the MNIST dataset in Keras**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "aH0EtlQlqrRX",
+        "outputId": "f9cc389a-dc45-4e64-ab0b-0c5c41f33cc9",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Downloading data from https://storage.googleapis.com/tensorflow/tf-keras-datasets/mnist.npz\n",
+            "11490434/11490434 [==============================] - 1s 0us/step\n"
+          ]
+        }
+      ],
+      "source": [
+        "from tensorflow.keras.datasets import mnist\n",
+        "(train_images, train_labels), (test_images, test_labels) = mnist.load_data()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "msBkoiYGqrRY",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "a0949321-0266-4eff-ffa2-f757906c6b52"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(60000, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 3
+        }
+      ],
+      "source": [
+        "train_images.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "3IHacOzoqrRZ",
+        "outputId": "8ff4baf9-0b51-4929-cfbe-7e662a061e65",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "60000"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 4
+        }
+      ],
+      "source": [
+        "len(train_labels)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "iJGGOrSxqrRZ",
+        "outputId": "0f515d80-6594-4139-f777-ab4621c3f3b5",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([5, 0, 4, ..., 5, 6, 8], dtype=uint8)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 5
+        }
+      ],
+      "source": [
+        "train_labels"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "rcPmiPoHqrRa",
+        "outputId": "1f7ca78b-2395-406b-fe40-a9ba3b8455c0",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(10000, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 6
+        }
+      ],
+      "source": [
+        "test_images.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "I0f_5q5BqrRb",
+        "outputId": "8af969d7-a3cc-4596-b312-c695b748ecb8",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "10000"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ],
+      "source": [
+        "len(test_labels)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "b6_OB2bFqrRb",
+        "outputId": "2acdbb92-a7a3-465d-cf14-8365542e1d96",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([7, 2, 1, ..., 4, 5, 6], dtype=uint8)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 8
+        }
+      ],
+      "source": [
+        "test_labels"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "8K82nMLqqrRb"
+      },
+      "source": [
+        "**The network architecture**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "1Z9I1SiUqrRc"
+      },
+      "outputs": [],
+      "source": [
+        "from tensorflow import keras\n",
+        "from tensorflow.keras import layers\n",
+        "model = keras.Sequential([\n",
+        "    layers.Dense(512, activation=\"relu\"),\n",
+        "    layers.Dense(10, activation=\"softmax\")\n",
+        "])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Wdq8dKuvqrRc"
+      },
+      "source": [
+        "**The compilation step**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "n9u_2GP5qrRc"
+      },
+      "outputs": [],
+      "source": [
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"sparse_categorical_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EKkMCAkAqrRd"
+      },
+      "source": [
+        "**Preparing the image data**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_images[0].shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1IvMid9hurOH",
+        "outputId": "fa5fa3a2-be25-49d4-9505-081f0a558354"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(784,)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 59
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Nrzc36QsqrRd"
+      },
+      "outputs": [],
+      "source": [
+        "train_images = train_images.reshape((60000, 28 * 28))\n",
+        "train_images = train_images.astype(\"float32\") / 255     # normalizing by dividing to 255 => 모든 데이터가 0에서 1사이 값을 가지게 됨.\n",
+        "test_images = test_images.reshape((10000, 28 * 28))\n",
+        "test_images = test_images.astype(\"float32\") / 255"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "train_images.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "3aRV0mkruzY7",
+        "outputId": "65f8aeba-96f2-4f62-ab3e-a1128cee86a6"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(60000, 784)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 60
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "pwHdmlcwqrRe"
+      },
+      "source": [
+        "**\"Fitting\" the model**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "UNzjwDVsqrRe",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "a165392b-220d-4d9d-fd4d-11cbf9833bda"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Epoch 1/5\n",
+            "469/469 [==============================] - 6s 3ms/step - loss: 0.2590 - accuracy: 0.9250\n",
+            "Epoch 2/5\n",
+            "469/469 [==============================] - 1s 3ms/step - loss: 0.1064 - accuracy: 0.9682\n",
+            "Epoch 3/5\n",
+            "469/469 [==============================] - 1s 3ms/step - loss: 0.0693 - accuracy: 0.9796\n",
+            "Epoch 4/5\n",
+            "469/469 [==============================] - 1s 3ms/step - loss: 0.0501 - accuracy: 0.9851\n",
+            "Epoch 5/5\n",
+            "469/469 [==============================] - 1s 3ms/step - loss: 0.0383 - accuracy: 0.9886\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<keras.callbacks.History at 0x7f6ff2f58ac0>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ],
+      "source": [
+        "model.fit(train_images, train_labels, epochs=5, batch_size=128)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MlEZDjy8qrRe"
+      },
+      "source": [
+        "**Using the model to make predictions**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "E85IbfiAqrRe",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "0a033549-005e-4093-a096-fc8cf328b1df"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "1/1 [==============================] - 0s 66ms/step\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([3.5886860e-08, 2.7016676e-09, 1.0876228e-05, 2.2771987e-05,\n",
+              "       2.8346635e-12, 6.1614344e-08, 2.6013664e-13, 9.9996579e-01,\n",
+              "       6.7239114e-08, 2.8349683e-07], dtype=float32)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ],
+      "source": [
+        "test_digits = test_images[0:10]\n",
+        "predictions = model.predict(test_digits)\n",
+        "predictions[0]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "yk6t4zdLqrRf",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "37f01e51-778a-42c9-f423-cb5cb3157c7e"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "7"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ],
+      "source": [
+        "predictions[0].argmax()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "JAQO_4pEqrRf",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "d5dd78b9-3a6f-470c-9b52-f515ca8add08"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0.9999658"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 15
+        }
+      ],
+      "source": [
+        "predictions[0][7]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "9-7ffVH4qrRf",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "b988f923-9046-4d23-d816-d00794c90bff"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "7"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 16
+        }
+      ],
+      "source": [
+        "test_labels[0]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "AZXIRYUCqrRf"
+      },
+      "source": [
+        "**Evaluating the model on new data**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "p9FOR4KNqrRg",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "f4238249-1a50-4ba1-8ba5-5d4938a758ec"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "313/313 [==============================] - 1s 2ms/step - loss: 0.0688 - accuracy: 0.9792\n",
+            "test_acc: 0.979200005531311\n"
+          ]
+        }
+      ],
+      "source": [
+        "test_loss, test_acc = model.evaluate(test_images, test_labels)\n",
+        "print(f\"test_acc: {test_acc}\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "acKhoYd4qrRg"
+      },
+      "source": [
+        "## Data representations for neural networks"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "dRPZ9cL9qrRg"
+      },
+      "source": [
+        "### Scalars (rank-0 tensors)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "PxCyjWuLqrRg"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np\n",
+        "x = np.array(12)\n",
+        "x"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "3FtsCwsBqrRg",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "316f6bc2-c8bd-4aaf-aa1c-31a2fcfefb94"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "0"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 20
+        }
+      ],
+      "source": [
+        "x.ndim"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "pe3gCNNcqrRh"
+      },
+      "source": [
+        "### Vectors (rank-1 tensors)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "q037tF_MqrRh",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "11a5f440-2fb6-462a-9848-7e85981f9678"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([12,  3,  6, 14,  7])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 21
+        }
+      ],
+      "source": [
+        "x = np.array([12, 3, 6, 14, 7])\n",
+        "x"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "VwQMjsbyqrRh",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "2844baab-4b1e-4578-fda8-b99546db8f65"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "1"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 22
+        }
+      ],
+      "source": [
+        "x.ndim"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LLZZOKEHqrRh"
+      },
+      "source": [
+        "### Matrices (rank-2 tensors)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "D_bGOXZ0qrRh",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "4b8da3e7-895c-4b52-d757-8f51bace3887"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "2"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ],
+      "source": [
+        "x = np.array([[5, 78, 2, 34, 0],\n",
+        "              [6, 79, 3, 35, 1],\n",
+        "              [7, 80, 4, 36, 2]])\n",
+        "x.ndim"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LpXRkCXzqrRi"
+      },
+      "source": [
+        "### Rank-3 and higher-rank tensors"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "0nW_fuZQqrRi",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "999c8218-e1e0-4005-efc0-ea9fdb0b3173"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "3"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 24
+        }
+      ],
+      "source": [
+        "x = np.array([[[5, 78, 2, 34, 0],\n",
+        "               [6, 79, 3, 35, 1],\n",
+        "               [7, 80, 4, 36, 2]],\n",
+        "              [[5, 78, 2, 34, 0],\n",
+        "               [6, 79, 3, 35, 1],\n",
+        "               [7, 80, 4, 36, 2]],\n",
+        "              [[5, 78, 2, 34, 0],\n",
+        "               [6, 79, 3, 35, 1],\n",
+        "               [7, 80, 4, 36, 2]]])\n",
+        "x.ndim"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Create a 3D tensor object.\n",
+        "\n",
+        "practice = np.array([[[1,2,3],\n",
+        "                      [4,5,6],\n",
+        "                      [7,8,9]],\n",
+        "                     [[10,11,12],\n",
+        "                      [13,14,15],\n",
+        "                      [16,17,18]],\n",
+        "                     [[19,20,21],\n",
+        "                      [22,23,24],\n",
+        "                      [25,26,27]]])\n",
+        "practice.ndim"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "qq3AIiAvx-MC",
+        "outputId": "f105317e-3c35-41e7-b03f-a271a496a08c"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "3"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 71
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "-jmTmOiIqrRi"
+      },
+      "source": [
+        "### Key attributes"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "KqIA6wg9qrRi"
+      },
+      "outputs": [],
+      "source": [
+        "from tensorflow.keras.datasets import mnist\n",
+        "(train_images, train_labels), (test_images, test_labels) = mnist.load_data()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Qh3Y94XqqrRi",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "48dc8dda-741d-4eb6-ceeb-9541ce9b8ea4"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "3"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 65
+        }
+      ],
+      "source": [
+        "train_images.ndim"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "jqDVGcwnqrRj",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "001ddb43-efd2-4eed-f3ae-7bc8e655a34f"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(60000, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 66
+        }
+      ],
+      "source": [
+        "train_images.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "rIXFVJfrqrRj",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "703165b9-8266-4b6f-c38c-0dcd6bf6c109"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "dtype('uint8')"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 67
+        }
+      ],
+      "source": [
+        "train_images.dtype"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# How many samples in Mnisttest dataset?  \n",
+        "test_images.shape  # 10000개"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "3OqamFyHzhAF",
+        "outputId": "edd75694-18cf-4537-f8e9-a52cf395e397"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(10000, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 76
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "z58twgOPqrRj"
+      },
+      "source": [
+        "**Displaying the fourth digit**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "JZML7wdqqrRj",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 265
+        },
+        "outputId": "c00e2826-19ba-46da-9f81-1209fb2bb62f"
+      },
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 432x288 with 1 Axes>"
+            ],
+            "image/png": "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\n"
+          },
+          "metadata": {
+            "needs_background": "light"
+          }
+        }
+      ],
+      "source": [
+        "import matplotlib.pyplot as plt\n",
+        "digit = train_images[4]\n",
+        "plt.imshow(digit, cmap=plt.cm.binary)\n",
+        "plt.show()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "O_8ag_oEqrRj",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "ae4c7372-aae2-4cc2-ac91-1c7dd568b1a4"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "9"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 30
+        }
+      ],
+      "source": [
+        "train_labels[4]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# visualize the 1stdigit from mnisttest dataset\n",
+        "\n",
+        "import matplotlib.pyplot as plt\n",
+        "digit0 = train_images[0]\n",
+        "plt.imshow(digit0, cmap=plt.cm.binary)\n",
+        "plt.show()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 265
+        },
+        "id": "hSneJ9tNxD7E",
+        "outputId": "cf8279fc-45d2-4d89-fd89-4e3b62515348"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 432x288 with 1 Axes>"
+            ],
+            "image/png": "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\n"
+          },
+          "metadata": {
+            "needs_background": "light"
+          }
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "zero_slice = train_images[:, 7:-7, 7:-7]"
+      ],
+      "metadata": {
+        "id": "2WCnUWowz2g_"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Jj4Gv-g9qrRj"
+      },
+      "source": [
+        "### Manipulating tensors in NumPy"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "HeZMLYrAqrRk",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "dbffa599-514c-402d-b567-9091d30f9c70"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(90, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 31
+        }
+      ],
+      "source": [
+        "my_slice = train_images[10:100]\n",
+        "my_slice.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "39IkdogVqrRk",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "dc226552-52da-4d8b-cd26-455e3d9914be"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(90, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 32
+        }
+      ],
+      "source": [
+        "my_slice = train_images[10:100, :, :]\n",
+        "my_slice.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ofW6KdyLqrRk",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "191927a4-bdba-4ca3-997b-70f8fdbc8cff"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(90, 28, 28)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 33
+        }
+      ],
+      "source": [
+        "my_slice = train_images[10:100, 0:28, 0:28]\n",
+        "my_slice.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ExzVscfVqrRk"
+      },
+      "outputs": [],
+      "source": [
+        "my_slice = train_images[:, 14:, 14:]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "wOuN0pWkqrRk"
+      },
+      "outputs": [],
+      "source": [
+        "my_slice = train_images[:, 7:-7, 7:-7]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aVKDwgRiqrRl"
+      },
+      "source": [
+        "### The notion of data batches"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "LATqviBxqrRl"
+      },
+      "outputs": [],
+      "source": [
+        "batch = train_images[:128]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "1VlmJAujqrRl"
+      },
+      "outputs": [],
+      "source": [
+        "batch = train_images[128:256]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "qSE-NGlsqrRl"
+      },
+      "outputs": [],
+      "source": [
+        "n = 3\n",
+        "batch = train_images[128 * n:128 * (n + 1)]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "GOga7trIqrRl"
+      },
+      "source": [
+        "### Real-world examples of data tensors"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0k3npc6OqrRm"
+      },
+      "source": [
+        "### Vector data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "MwH6mh2VqrRm"
+      },
+      "source": [
+        "### Timeseries data or sequence data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "yGUMHd8cqrRm"
+      },
+      "source": [
+        "### Image data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "HC7Ckx0lqrRm"
+      },
+      "source": [
+        "### Video data"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7gK5UIb1qrRm"
+      },
+      "source": [
+        "## The gears of neural networks: tensor operations"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "eAZeumGnqrRm"
+      },
+      "source": [
+        "### Element-wise operations"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Try to use naïve version of reluand add functions\n",
+        "import numpy as np\n",
+        "x = np.array([[1,2,3], [1,0,-4]])\n",
+        "naive_relu(x)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "bq7QT5gt08pY",
+        "outputId": "b9db2bf4-217b-42c0-a794-e36b09a2485a"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[1, 2, 3],\n",
+              "       [1, 0, 0]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 83
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "tzot-H4lqrRn"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_relu(x):\n",
+        "    assert len(x.shape) == 2\n",
+        "    x = x.copy()                      # 원본 데이터의 변형을 막기 위해 x.copy()를 사용\n",
+        "    for i in range(x.shape[0]):\n",
+        "        for j in range(x.shape[1]):\n",
+        "            x[i, j] = max(x[i, j], 0)\n",
+        "    return x"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "SlH8W6MEqrRn"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_add(x, y):\n",
+        "    assert len(x.shape) == 2\n",
+        "    assert x.shape == y.shape\n",
+        "    x = x.copy()\n",
+        "    for i in range(x.shape[0]):\n",
+        "        for j in range(x.shape[1]):\n",
+        "            x[i, j] += y[i, j]\n",
+        "    return x"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "myl-uoHiqrRn",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "b405eb3a-f04e-4a82-f9b2-da8578ec226a"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Took: 0.01 s\n"
+          ]
+        }
+      ],
+      "source": [
+        "import time\n",
+        "\n",
+        "x = np.random.random((20, 100))\n",
+        "y = np.random.random((20, 100))\n",
+        "\n",
+        "t0 = time.time()\n",
+        "for _ in range(1000):\n",
+        "    z = x + y\n",
+        "    z = np.maximum(z, 0.)\n",
+        "print(\"Took: {0:.2f} s\".format(time.time() - t0))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "moKmEzwVqrRn",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "aaeccd7e-08f4-4e8b-f89d-6bf6bc01ca4a"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Took: 1.95 s\n"
+          ]
+        }
+      ],
+      "source": [
+        "t0 = time.time()\n",
+        "for _ in range(1000):\n",
+        "    z = naive_add(x, y)\n",
+        "    z = naive_relu(z)\n",
+        "print(\"Took: {0:.2f} s\".format(time.time() - t0))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Why the naïve version of the code slower?\n",
+        "naive에서는 for문 사용 => 좀 더 느림\n",
+        "vectorlized(벡터화?) 해서 사용하는게 좀 더 빠름"
+      ],
+      "metadata": {
+        "id": "1JscBH6-2Hkm"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "UCNzSAyQqrRn"
+      },
+      "source": [
+        "### Broadcasting"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "_NIXtQFSqrRo"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np\n",
+        "X = np.random.random((32, 10))\n",
+        "y = np.random.random((10,))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "aA9RIcx0qrRo"
+      },
+      "outputs": [],
+      "source": [
+        "y = np.expand_dims(y, axis=0)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "h1_BQR34qrRo"
+      },
+      "outputs": [],
+      "source": [
+        "Y = np.concatenate([y] * 32, axis=0)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "sUcl3dw8qrRp"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_add_matrix_and_vector(x, y):\n",
+        "    assert len(x.shape) == 2\n",
+        "    assert len(y.shape) == 1\n",
+        "    assert x.shape[1] == y.shape[0]\n",
+        "    x = x.copy()\n",
+        "    for i in range(x.shape[0]):\n",
+        "        for j in range(x.shape[1]):\n",
+        "            x[i, j] += y[j]\n",
+        "    return x"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ItbKSI09qrRp"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np\n",
+        "x = np.random.random((64, 3, 32, 10))\n",
+        "y = np.random.random((32, 10))\n",
+        "z = np.maximum(x, y)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "De26SuRUqrRp"
+      },
+      "source": [
+        "### Tensor product"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "P5HE9CGvqrRp"
+      },
+      "outputs": [],
+      "source": [
+        "x = np.random.random((32,))\n",
+        "y = np.random.random((32,))\n",
+        "z = np.dot(x, y)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "775CF0s6qrRp"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_vector_dot(x, y):\n",
+        "    assert len(x.shape) == 1\n",
+        "    assert len(y.shape) == 1\n",
+        "    assert x.shape[0] == y.shape[0]\n",
+        "    z = 0.\n",
+        "    for i in range(x.shape[0]):\n",
+        "        z += x[i] * y[i]\n",
+        "    return z"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "D0UtwPy1qrRp"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_matrix_vector_dot(x, y):\n",
+        "    assert len(x.shape) == 2\n",
+        "    assert len(y.shape) == 1\n",
+        "    assert x.shape[1] == y.shape[0]\n",
+        "    z = np.zeros(x.shape[0])\n",
+        "    for i in range(x.shape[0]):\n",
+        "        for j in range(x.shape[1]):\n",
+        "            z[i] += x[i, j] * y[j]\n",
+        "    return z"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "3eEVmF5XqrRq"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_matrix_vector_dot(x, y):\n",
+        "    z = np.zeros(x.shape[0])\n",
+        "    for i in range(x.shape[0]):\n",
+        "        z[i] = naive_vector_dot(x[i, :], y)\n",
+        "    return z"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "YEfM5GSEqrRq"
+      },
+      "outputs": [],
+      "source": [
+        "def naive_matrix_dot(x, y):\n",
+        "    assert len(x.shape) == 2\n",
+        "    assert len(y.shape) == 2\n",
+        "    assert x.shape[1] == y.shape[0]\n",
+        "    z = np.zeros((x.shape[0], y.shape[1]))\n",
+        "    for i in range(x.shape[0]):\n",
+        "        for j in range(y.shape[1]):\n",
+        "            row_x = x[i, :]\n",
+        "            column_y = y[:, j]\n",
+        "            z[i, j] = naive_vector_dot(row_x, column_y)\n",
+        "    return z"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "bajfM0JLqrRq"
+      },
+      "source": [
+        "### Tensor reshaping"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "hAWUSnFFqrRq"
+      },
+      "outputs": [],
+      "source": [
+        "train_images = train_images.reshape((60000, 28 * 28))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "LH8KFa9KqrRq",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "64cc363b-936c-46ab-b437-e41b3f111cac"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(3, 2)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 54
+        }
+      ],
+      "source": [
+        "x = np.array([[0., 1.],\n",
+        "             [2., 3.],\n",
+        "             [4., 5.]])\n",
+        "x.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "L5t79zcTqrRr",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "771aa29f-e9fa-4a67-dad9-ff40ca80415f"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[0.],\n",
+              "       [1.],\n",
+              "       [2.],\n",
+              "       [3.],\n",
+              "       [4.],\n",
+              "       [5.]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 55
+        }
+      ],
+      "source": [
+        "x = x.reshape((6, 1))\n",
+        "x"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "G9n_skz0qrRr",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "84916f05-f8a5-43a1-d734-7dda503f3263"
+      },
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(20, 300)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 56
+        }
+      ],
+      "source": [
+        "x = np.zeros((300, 20))\n",
+        "x = np.transpose(x)\n",
+        "x.shape"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "XifdkCe_qrRr"
+      },
+      "source": [
+        "### Geometric interpretation of tensor operations"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5dEmoMPSqrRr"
+      },
+      "source": [
+        "### A geometric interpretation of deep learning"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zWbE29oGqrRr"
+      },
+      "source": [
+        "## The engine of neural networks: gradient-based optimization"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c2M1noGpqrRr"
+      },
+      "source": [
+        "### What's a derivative?"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hHV9hvWyqrRs"
+      },
+      "source": [
+        "### Derivative of a tensor operation: the gradient"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "UBo0RP8DqrRs"
+      },
+      "source": [
+        "### Stochastic gradient descent"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "I8ddxigAqrRs"
+      },
+      "source": [
+        "### Chaining derivatives: The Backpropagation algorithm"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hyjS6IY9qrRs"
+      },
+      "source": [
+        "#### The chain rule"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "aPM8haMkqrRs"
+      },
+      "source": [
+        "#### Automatic differentiation with computation graphs"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "nnDL731WqrRs"
+      },
+      "source": [
+        "#### The gradient tape in TensorFlow"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "uvrh3yCPqrRs"
+      },
+      "outputs": [],
+      "source": [
+        "import tensorflow as tf\n",
+        "x = tf.Variable(0.)\n",
+        "with tf.GradientTape() as tape:  \n",
+        "    y = 2 * x + 3\n",
+        "grad_of_y_wrt_x = tape.gradient(y, x)    # 함수 미분"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "grad_of_y_wrt_x"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "tBXYz8mttu54",
+        "outputId": "8c763cb3-5998-4822-bbc1-62a001e62d9c"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<tf.Tensor: shape=(), dtype=float32, numpy=2.0>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 7
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "tULKGeepqrRt"
+      },
+      "outputs": [],
+      "source": [
+        "x = tf.Variable(tf.random.uniform((2, 2)))   # matrix\n",
+        "with tf.GradientTape() as tape:\n",
+        "    y = 2 * x + 3\n",
+        "grad_of_y_wrt_x = tape.gradient(y, x)     # 벡터 미분"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "grad_of_y_wrt_x"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "9Qwwgvm9txeJ",
+        "outputId": "325d15d4-f33b-4788-c523-73d9eaa1b19a"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<tf.Tensor: shape=(2, 2), dtype=float32, numpy=\n",
+              "array([[2., 2.],\n",
+              "       [2., 2.]], dtype=float32)>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 9
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "f5dMJbISqrRt"
+      },
+      "outputs": [],
+      "source": [
+        "W = tf.Variable(tf.random.uniform((2, 2)))\n",
+        "b = tf.Variable(tf.zeros((2,)))\n",
+        "x = tf.random.uniform((2, 2))\n",
+        "with tf.GradientTape() as tape:\n",
+        "    y = tf.matmul(x, W) + b\n",
+        "grad_of_y_wrt_W_and_b = tape.gradient(y, [W, b])"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "W"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "PXvLzWyat58x",
+        "outputId": "2a903044-35db-43ec-e720-f9bc3c79d2a7"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<tf.Variable 'Variable:0' shape=(2, 2) dtype=float32, numpy=\n",
+              "array([[0.8256111 , 0.05410433],\n",
+              "       [0.6635914 , 0.6725197 ]], dtype=float32)>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 12
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "b"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "JoNN50FTt71V",
+        "outputId": "8f9ca9be-05f9-4ca0-ae74-f9ad64041c1f"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<tf.Variable 'Variable:0' shape=(2,) dtype=float32, numpy=array([0., 0.], dtype=float32)>"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 13
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "grad_of_y_wrt_W_and_b     # 1번째 줄 : dt/dw, 2번째 줄 : dy/db"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "QsfY05jCuCVK",
+        "outputId": "28146f6f-de25-4606-b9a8-4e629c789d8d"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[<tf.Tensor: shape=(2, 2), dtype=float32, numpy=\n",
+              " array([[0.7167506, 0.7167506],\n",
+              "        [0.5408604, 0.5408604]], dtype=float32)>,\n",
+              " <tf.Tensor: shape=(2,), dtype=float32, numpy=array([2., 2.], dtype=float32)>]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 14
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 4주차 question 1\n",
+        "import tensorflow as tf\n",
+        "x = tf.Variable(2.) # scala\n",
+        "y = tf.Variable(1.)\n",
+        "with tf.GradientTape() as tape:\n",
+        "  f = x**2 * y + x * y + 3 * y\n",
+        "q1 = tape.gradient(f, [x, y])     # x에 대해 미분, y에 대해 미분 (순서대로)"
+      ],
+      "metadata": {
+        "id": "yh9LsZ6nwDEP"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "q1"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "DlH_Wj9TxHsK",
+        "outputId": "e6e0e36f-3f81-40d0-9abd-710ffa8af1b9"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[<tf.Tensor: shape=(), dtype=float32, numpy=5.0>,\n",
+              " <tf.Tensor: shape=(), dtype=float32, numpy=9.0>]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 30
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# 4주차 question 2\n",
+        "import numpy as np\n",
+        "x = tf.constant(np.array([1.,4.,3.]).reshape(1,3), dtype=tf.float32)    # constant : 상수항이다~, reshape(1,3) : 1행3열로 바꾼다(?)\n",
+        "W = tf.Variable(tf.random.uniform((3, 2)), dtype=tf.float32)            # tf.random.uniform => 랜덤 할당\n",
+        "b = tf.Variable(tf.zeros((2,)), dtype=tf.float32)\n",
+        "with tf.GradientTape() as tape:\n",
+        "  f = tf.pow(tf.matmul(x,W) + b, 3)    # pow : 2제곱 이상 할때(3, 4제곱..등등), tf.matmul : 벡터 만드는 것\n",
+        "q2 = tape.gradient(f, [x, W]) "
+      ],
+      "metadata": {
+        "id": "9-I0kKTQunBY"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "q2"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "pX3tpwUpyQaR",
+        "outputId": "0a81e3ab-a51b-4604-8d61-1488b01383d6"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "[None, <tf.Tensor: shape=(3, 2), dtype=float32, numpy=\n",
+              " array([[149.88397, 117.83923],\n",
+              "        [599.5359 , 471.35693],\n",
+              "        [449.65192, 353.5177 ]], dtype=float32)>]"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 38
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "4q0m0OeiqrRt"
+      },
+      "source": [
+        "## Looking back at our first example"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "1daTb--kqrRt"
+      },
+      "outputs": [],
+      "source": [
+        "(train_images, train_labels), (test_images, test_labels) = mnist.load_data()\n",
+        "train_images = train_images.reshape((60000, 28 * 28))\n",
+        "train_images = train_images.astype(\"float32\") / 255\n",
+        "test_images = test_images.reshape((10000, 28 * 28))\n",
+        "test_images = test_images.astype(\"float32\") / 255"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "iLvC82PbqrRu"
+      },
+      "outputs": [],
+      "source": [
+        "model = keras.Sequential([\n",
+        "    layers.Dense(512, activation=\"relu\"),\n",
+        "    layers.Dense(10, activation=\"softmax\")\n",
+        "])"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "HbTdPyvEqrRu"
+      },
+      "outputs": [],
+      "source": [
+        "model.compile(optimizer=\"rmsprop\",\n",
+        "              loss=\"sparse_categorical_crossentropy\",\n",
+        "              metrics=[\"accuracy\"])"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "gfuhUsXMqrRu"
+      },
+      "outputs": [],
+      "source": [
+        "model.fit(train_images, train_labels, epochs=5, batch_size=128)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_XGARU6PqrRu"
+      },
+      "source": [
+        "### Reimplementing our first example from scratch in TensorFlow"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "TVlAZvlaqrRu"
+      },
+      "source": [
+        "#### A simple Dense class"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "aYKPWiLnqrRu"
+      },
+      "outputs": [],
+      "source": [
+        "import tensorflow as tf\n",
+        "\n",
+        "class NaiveDense:\n",
+        "    def __init__(self, input_size, output_size, activation):\n",
+        "        self.activation = activation\n",
+        "\n",
+        "        w_shape = (input_size, output_size)\n",
+        "        w_initial_value = tf.random.uniform(w_shape, minval=0, maxval=1e-1)\n",
+        "        self.W = tf.Variable(w_initial_value)\n",
+        "\n",
+        "        b_shape = (output_size,)\n",
+        "        b_initial_value = tf.zeros(b_shape)\n",
+        "        self.b = tf.Variable(b_initial_value)\n",
+        "\n",
+        "    def __call__(self, inputs):\n",
+        "        return self.activation(tf.matmul(inputs, self.W) + self.b)\n",
+        "\n",
+        "    @property\n",
+        "    def weights(self):\n",
+        "        return [self.W, self.b]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "jlhUKCSpqrRv"
+      },
+      "source": [
+        "#### A simple Sequential class"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "GrzS9h4GqrRv"
+      },
+      "outputs": [],
+      "source": [
+        "class NaiveSequential:\n",
+        "    def __init__(self, layers):\n",
+        "        self.layers = layers\n",
+        "\n",
+        "    def __call__(self, inputs):\n",
+        "        x = inputs\n",
+        "        for layer in self.layers:\n",
+        "           x = layer(x)\n",
+        "        return x\n",
+        "\n",
+        "    @property\n",
+        "    def weights(self):\n",
+        "       weights = []\n",
+        "       for layer in self.layers:\n",
+        "           weights += layer.weights\n",
+        "       return weights"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "wvCpi1KpqrRv"
+      },
+      "outputs": [],
+      "source": [
+        "model = NaiveSequential([\n",
+        "    NaiveDense(input_size=28 * 28, output_size=512, activation=tf.nn.relu),\n",
+        "    NaiveDense(input_size=512, output_size=10, activation=tf.nn.softmax)\n",
+        "])\n",
+        "assert len(model.weights) == 4"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zMS_Jv1fqrRv"
+      },
+      "source": [
+        "#### A batch generator"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "vzQEFUWlqrRv"
+      },
+      "outputs": [],
+      "source": [
+        "import math\n",
+        "\n",
+        "class BatchGenerator:\n",
+        "    def __init__(self, images, labels, batch_size=128):\n",
+        "        assert len(images) == len(labels)\n",
+        "        self.index = 0\n",
+        "        self.images = images\n",
+        "        self.labels = labels\n",
+        "        self.batch_size = batch_size\n",
+        "        self.num_batches = math.ceil(len(images) / batch_size)\n",
+        "\n",
+        "    def next(self):\n",
+        "        images = self.images[self.index : self.index + self.batch_size]\n",
+        "        labels = self.labels[self.index : self.index + self.batch_size]\n",
+        "        self.index += self.batch_size\n",
+        "        return images, labels"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "InE8MliFqrRw"
+      },
+      "source": [
+        "### Running one training step"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "jRXvjY7TqrRw"
+      },
+      "outputs": [],
+      "source": [
+        "def one_training_step(model, images_batch, labels_batch):\n",
+        "    with tf.GradientTape() as tape:\n",
+        "        predictions = model(images_batch)\n",
+        "        per_sample_losses = tf.keras.losses.sparse_categorical_crossentropy(\n",
+        "            labels_batch, predictions)\n",
+        "        average_loss = tf.reduce_mean(per_sample_losses)\n",
+        "    gradients = tape.gradient(average_loss, model.weights)\n",
+        "    update_weights(gradients, model.weights)\n",
+        "    return average_loss"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ATBzVNKWqrRw"
+      },
+      "outputs": [],
+      "source": [
+        "learning_rate = 1e-3\n",
+        "\n",
+        "def update_weights(gradients, weights):\n",
+        "    for g, w in zip(gradients, weights):\n",
+        "        w.assign_sub(g * learning_rate)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "gmbLMSmkqrRw"
+      },
+      "outputs": [],
+      "source": [
+        "from tensorflow.keras import optimizers\n",
+        "\n",
+        "optimizer = optimizers.SGD(learning_rate=1e-3)\n",
+        "\n",
+        "def update_weights(gradients, weights):\n",
+        "    optimizer.apply_gradients(zip(gradients, weights))"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Pt_VNh0oqrRw"
+      },
+      "source": [
+        "### The full training loop"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "dHx8gPGwqrRw"
+      },
+      "outputs": [],
+      "source": [
+        "def fit(model, images, labels, epochs, batch_size=128):\n",
+        "    for epoch_counter in range(epochs):\n",
+        "        print(f\"Epoch {epoch_counter}\")\n",
+        "        batch_generator = BatchGenerator(images, labels)\n",
+        "        for batch_counter in range(batch_generator.num_batches):\n",
+        "            images_batch, labels_batch = batch_generator.next()\n",
+        "            loss = one_training_step(model, images_batch, labels_batch)\n",
+        "            if batch_counter % 100 == 0:\n",
+        "                print(f\"loss at batch {batch_counter}: {loss:.2f}\")"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "lxGqRZLOqrRx"
+      },
+      "outputs": [],
+      "source": [
+        "from tensorflow.keras.datasets import mnist\n",
+        "(train_images, train_labels), (test_images, test_labels) = mnist.load_data()\n",
+        "\n",
+        "train_images = train_images.reshape((60000, 28 * 28))\n",
+        "train_images = train_images.astype(\"float32\") / 255\n",
+        "test_images = test_images.reshape((10000, 28 * 28))\n",
+        "test_images = test_images.astype(\"float32\") / 255\n",
+        "\n",
+        "fit(model, train_images, train_labels, epochs=10, batch_size=128)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "UClMnuTcqrRx"
+      },
+      "source": [
+        "### Evaluating the model"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "tykKANFGqrRx"
+      },
+      "outputs": [],
+      "source": [
+        "predictions = model(test_images)\n",
+        "predictions = predictions.numpy()\n",
+        "predicted_labels = np.argmax(predictions, axis=1)\n",
+        "matches = predicted_labels == test_labels\n",
+        "print(f\"accuracy: {matches.mean():.2f}\")"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "tKirtCzLqrRx"
+      },
+      "source": [
+        "## Summary"
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "toc_visible": true,
+      "collapsed_sections": [
+        "4q0m0OeiqrRt",
+        "TVlAZvlaqrRu",
+        "jlhUKCSpqrRv",
+        "zMS_Jv1fqrRv",
+        "InE8MliFqrRw",
+        "Pt_VNh0oqrRw",
+        "UClMnuTcqrRx"
+      ],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "language": "python",
+      "name": "python3"
+    },
+    "language_info": {
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "file_extension": ".py",
+      "mimetype": "text/x-python",
+      "name": "python",
+      "nbconvert_exporter": "python",
+      "pygments_lexer": "ipython3",
+      "version": "3.7.0"
+    },
+    "accelerator": "GPU",
+    "gpuClass": "standard"
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
